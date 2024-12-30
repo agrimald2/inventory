@@ -2,16 +2,16 @@
     <Header />
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div class="flex flex-row mb-4 md:mb-0">
-            <select class="form-select block w-full md:w-48 px-3 py-2 mb-2 md:mb-0 md:mr-2 text-base font-normal text-gray-700 bg-white bg-clip-padding bg-no-repeat border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" aria-label="Tipo de movimiento">
-                <option selected>Tipo de movimiento</option>
-                <option value="entrada">Entrada</option>
-                <option value="salida">Salida</option>
-                <option value="errores">Errores</option>
+            <select v-model="type" @change="getMovements" class="form-select block w-full md:w-48 px-3 py-2 mb-2 md:mb-0 md:mr-2 text-base font-normal text-gray-700 bg-white bg-clip-padding bg-no-repeat border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" aria-label="Tipo de movimiento">
+                <option value="">Tipo de movimiento</option>
+                <option value="in">Entrada</option>
+                <option value="out">Salida</option>
+                <option value="mistake">Errores</option>
             </select>
         </div>
         <div class="flex flex-row">
-            <input type="date" class="form-input block w-full md:w-44 px-3 py-2 mb-2 md:mb-0 md:mr-2 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" placeholder="Desde">
-            <input type="date" class="form-input block w-full md:w-44 px-3 py-2 mb-2 md:mb-0 md:mr-2 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" placeholder="Hasta">
+            <input v-model="startDate" @change="getMovements" type="date" class="form-input block w-full md:w-44 px-3 py-2 mb-2 md:mb-0 md:mr-2 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" placeholder="Desde">
+            <input v-model="endDate" @change="getMovements" type="date" class="form-input block w-full md:w-44 px-3 py-2 mb-2 md:mb-0 md:mr-2 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" placeholder="Hasta">
         </div>
     </div>
     <List :movements="movements" @markAsMistake="markAsMistake" />
@@ -39,10 +39,13 @@ export default {
             type: '',
         };
     },
+    watch: {
+        startDate: 'getMovements',
+        endDate: 'getMovements',
+        type: 'getMovements',
+    },
     methods: {
         getMovements() {
-            console.log(this.startDate, this.endDate, this.type);
-            console.log("GET MOVEMENTS");
             axios.get('/inventory/getMovements', {
                 params: {
                     start_date: this.startDate,
@@ -51,7 +54,6 @@ export default {
                 },
             })
             .then(response => {
-                console.dir(response.data);
                 this.movements = response.data;
             });
         },
@@ -60,7 +62,6 @@ export default {
                 movement_id: movementId,
             })
             .then(response => {
-                console.log(response.data);
                 this.getMovements();
             });
         },
